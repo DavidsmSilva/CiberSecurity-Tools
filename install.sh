@@ -201,37 +201,56 @@ success "Herramientas Go instaladas"
 echo ""
 
 # ════════════════════════════════════════════════════════════════════════════
-# 6. CLONAR REPOSITORIOS
-# ══════════════════════════════════════════════════════════���═��═══════════════
+# 6. CLONAR REPOSITORIOS (con feedback visual)
+# ════════════════════════════════════════════════════════════════════════════
 
-progress "Clonando repositorios..."
+# Configurar git para que NO pida credenciales
+export GIT_TERMINAL_PROMPT=0
+git config --global credential.helper ''
+
+progress "Clonando repositorios... (puede tardar 2-5 min)"
 
 # Crear directorio
 mkdir -p /opt
 
-# SecLists
+# SecLists (~500MB)
+echo "  📂 SecLists (wordlists) - ~500MB..."
 if [ ! -d /opt/SecLists ]; then
-    git clone --depth 1 https://github.com/danielmiessler/SecLists.git /opt/SecLists 2>/dev/null || true
+    GIT_CURL_VERBOSE=0 git clone --depth 1 --single-branch https://github.com/danielmiessler/SecLists.git /opt/SecLists 2>/dev/null &
+    wait
+    [ -d /opt/SecLists ] && echo "    ✅ SecLists" || echo "    ⚠️  SecLists (error)"
 fi
 
 # PayloadsAllTheThings
+echo "  📂 PayloadsAllTheThings..."
 if [ ! -d /opt/PayloadsAllTheThings ]; then
-    git clone --depth 1 https://github.com/swisskyrepo/PayloadsAllTheThings.git /opt/PayloadsAllTheThings 2>/dev/null || true
+    git clone --depth 1 --single-branch https://github.com/swisskyrepo/PayloadsAllTheThings.git /opt/PayloadsAllTheThings 2>/dev/null &
+    wait
+    [ -d /opt/PayloadsAllTheThings ] && echo "    ✅ PayloadsAllTheThings" || echo "    ⚠️  PayloadsAllTheThings (error)"
 fi
 
 # Responder
+echo "  📂 Responder..."
 if [ ! -d /opt/Responder ]; then
-    git clone --depth 1 https://github.com/sbzar/Responder.git /opt/Responder 2>/dev/null || true
+    git clone --depth 1 --single-branch https://github.com/sbzar/Responder.git /opt/Responder 2>/dev/null &
+    wait
+    [ -d /opt/Responder ] && echo "    ✅ Responder" || echo "    ⚠️  Responder (error)"
 fi
 
 # theHarvester
+echo "  📂 theHarvester..."
 if [ ! -d /opt/theHarvester ]; then
-    git clone --depth 1 https://github.com/laramies/theHarvester.git /opt/theHarvester 2>/dev/null || true
+    git clone --depth 1 --single-branch https://github.com/laramies/theHarvester.git /opt/theHarvester 2>/dev/null &
+    wait
+    [ -d /opt/theHarvester ] && echo "    ✅ theHarvester" || echo "    ⚠️  theHarvester (error)"
 fi
 
 # PEASS
+echo "  📂 PEASS (privilege escalation)..."
 if [ ! -d /opt/PEASS ]; then
-    git clone --depth 1 https://github.com/carlospolop/PEASS-ng.git /opt/PEASS 2>/dev/null || true
+    git clone --depth 1 --single-branch https://github.com/carlospolop/PEASS-ng.git /opt/PEASS 2>/dev/null &
+    wait
+    [ -d /opt/PEASS ] && echo "    ✅ PEASS" || echo "    ⚠️  PEASS (error)"
 fi
 
 success "Repositorios clonados"

@@ -1,6 +1,6 @@
 [project]
 name = "cibersecurity-tools"
-version = "1.0.0"
+version = "2.1.0"
 description = "Complete penetration testing toolkit for Kali Linux"
 authors = [{name = "DavidsmSilva"}]
 requires-python = ">=3.9"

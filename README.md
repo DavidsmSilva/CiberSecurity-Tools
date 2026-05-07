@@ -1,8 +1,8 @@
 # 🛡️ CyberSecurity Tools
 
-> **Instalador AUTOMÁTICO + Launcher** para Kali Linux.
+> **Instalador AUTOMÁTICO + Launcher v2.1** para Kali Linux.
 
-Instala automáticamente herramientas de pentesting y las ejecuta desde un menú interactivo.
+Instala automáticamente herramientas de pentesting y las ejecuta desde un menú interactivo o CLI.
 
 ---
 
@@ -31,7 +31,7 @@ python3 main.py
 
 ---
 
-## 📦 El instalador instala:
+## 📦 El instalador instala (~50 herramientas)
 
 | Categoría | Herramientas |
 |-----------|-------------|
@@ -41,6 +41,7 @@ python3 main.py
 | **Web** | zaproxy, dirb |
 | **Contraseñas** | hashcat, john, hydra, cewl, crunch |
 | **Red/Sniffing** | wireshark, tcpdump, ettercap, bettercap, responder |
+| **MitM** | ettercap, bettercap, responder, arpspoof |
 | **Post-Explotación** | netcat, socat, linpeas |
 | **AD** | enum4linux, ldapsearch, rpcclient |
 | **Reversing** | ghidra, radare2, binwalk, foremost, gdb |
@@ -48,12 +49,40 @@ python3 main.py
 
 ---
 
-## 📋 Menú del Launcher
+## 📋 Uso del CLI
+
+```bash
+# Verificar TODAS las herramientas instaladas
+cibersec --check
+cibersec -c
+
+# Listar categorías
+cibersec --list
+cibersec -l
+
+# Ver categoría específica
+cibersec -c 1
+
+# Ejecutar herramienta directamente
+cibersec 1 1                    # nmap interactivo
+cibersec 1 1 -sV 192.168.1.1     # nmap con argumentos
+cibersec 5 1 -m 22000 hash.txt   # hashcat
+
+# Modo interactivo
+cibersec
+
+# Versión
+cibersec --version
+```
+
+---
+
+## 📋 Menú Interactivo
 
 ```
 ╔════════════════════════════════════════════════════════════════╗
-║      🛡️  CyberSecurity Tools - Launcher v2.0         ║
-╚════════════════════════════════════════════════════════╝
+║      🛡️  CyberSecurity Tools - Launcher v2.1         ║
+╚════════════════════════════════════════════════════════════════╝
 
 #   Categoría                  Tools
 1   Reconocimiento & Escaneo     10
@@ -66,12 +95,10 @@ python3 main.py
 8   Post-Explotación         3
 9   Active Directory         3
 10   Reversing & Forensics   5
-11   Utilidades              3
-```
+11   Utilidades              2
 
-Cada herramienta muestra:
-- ✅ = instalada
-- ❌ = no instalada (con comando para instalarla)
+Escribe 'c' para verificar todas las tools
+```
 
 ---
 
@@ -87,12 +114,18 @@ Cada herramienta muestra:
 
 ## 📝 Changelog
 
+### v2.1 (2026-05)
+- ✅ CLI arguments: `cibersec nmap -sV target`
+- ✅ Modo `--check`: verifica todas las tools
+- ✅ Mejor manejo de errores
+- ✅ Verifica conexión a internet antes de descargar
+- ✅ Contadores de éxito/fallo
+- ✅ Tiempo total de instalación
+- ✅ install.sh con funciones reutilizables
+
 ### v2.0 (2026-05)
-- ✅ install.sh v2.0 - instalación automática real
-- ✅ main.py v2.0 - verifica herramientas antes de ejecutar
-- ✅ Muestra estado ✅/❌ en el menú
-- ✅ Comando de instalación si falta algo
-- ✅ README corregido
+- ✅ Instalador automático
+- ✅ Launcher con verificación
 
 ### v1.x (2026-05)
-- Versiones anteriores con installer básico
+- Versiones anteriores

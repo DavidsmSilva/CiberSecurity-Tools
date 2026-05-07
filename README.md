@@ -112,6 +112,7 @@ Nmap 7.94...
 | Comando | Descripción |
 |---------|-----------|
 | `./install.sh` | Instalar/actualizar todo |
+| `./update.sh` | Actualizar app + verificar tools |
 | `cibersec` | Launcher interactivo |
 | `cibersec --list` | Ver todas las tools |
 | `cibersec -c 1` | Ver categoría 1 |
@@ -136,6 +137,7 @@ Para uso en:
 - ✅ Instala ~100 herramientas automáticamente
 - ✅ Reinstalar forzado
 - ✅ Actualiza Nuclei
+- ✅ Script de update + verificación (`update.sh`)
 
 ### v1.0 (2026-05)
 - ✅ Launcher interactivo

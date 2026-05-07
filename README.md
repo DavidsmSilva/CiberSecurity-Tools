@@ -6,14 +6,7 @@ Un solo comando para instalar y ejecutar todas las herramientas que necesitás.
 
 ---
 
-## ⚡ Quick Update (si ya tenés la app)
-
-```bash
-cd CiberSecurity-Tools
-git pull
-chmod +x install.sh update.sh
-sudo ./update.sh
-```
+## ⚡ Instalación (primera vez)
 
 ```bash
 # Clonar el repositorio
@@ -29,23 +22,33 @@ chmod +x install.sh update.sh
 sudo ./install.sh
 ```
 
-El instalador:
+---
+
+## 🔄 Actualización (si ya lo tenías instalado)
+
+```bash
+# Entrar al directorio
+cd CiberSecurity-Tools
+
+# Descargar última versión
+git pull
+
+# Dar permisos
+chmod +x install.sh update.sh
+
+# Actualizar + verificar
+sudo ./update.sh
+```
+
+---
+
+## 📦 El instalador:
+
 - ✅ Actualiza el sistema
 - ✅ Instala todas las herramientas (~100+)
 - ✅ Instala el launcher
 - ✅ Actualiza Nuclei templates
 - 🚀 **TOTAL: ~5-15 minutos**
-
----
-
-## 🔄 Quick Update (si ya tenés la app)
-
-```bash
-cd CiberSecurity-Tools
-git pull
-chmod +x install.sh update.sh
-sudo ./update.sh
-```
 
 ---
 
@@ -95,9 +98,9 @@ cibersec -c 1 -t 1
 ```
 $ cibersec
 
-╔═══════════════════════════════════════════════════════════════════╗
+╔═══════════════════════════════════════════════════════════════════════╗
 ║      🛡️  CyberSecurity Tools - Launcher v1.0                 ║
-╚═══════════════════════════════════════════════════════════════════╝
+╚═══════════════════════════════════════════════════════════════════════╝
 
 #   Categoría                  Herramientas
 1   Reconocimiento & Escaneo    9 tools
@@ -128,12 +131,12 @@ Nmap 7.94...
 
 ---
 
-## 📦 Quick Reference
+## 📝 Quick Reference
 
 | Comando | Descripción |
 |---------|-----------|
-| `./install.sh` | Instalar/actualizar todo |
-| `./update.sh` | Actualizar app + verificar tools |
+| `./install.sh` | Primera instalación |
+| `./update.sh` | Actualizar + verificar tools |
 | `cibersec` | Launcher interactivo |
 | `cibersec --list` | Ver todas las tools |
 | `cibersec -c 1` | Ver categoría 1 |
@@ -152,6 +155,10 @@ Para uso en:
 ---
 
 ## 📝 Changelog
+
+### v1.2 (2026-05)
+- ✅ README corregido con orden correcto
+- ✅ Secciones separadas: instalación vs actualización
 
 ### v1.1 (2026-05)
 - ✅ Instalador completo (`install.sh`)

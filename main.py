@@ -52,7 +52,7 @@ TOOLS = {
         {"name": "searchsploit", "cmd": "searchsploit", "pkg": "exploitdb"},
     ]},
     "4": {"category": "Web Pentesting", "tools": [
-        {"name": "zaproxy", "cmd": "zap-x.sh", "pkg": "zaproxy"},
+        {"name": "zaproxy", "cmd": "zaproxy", "pkg": "zaproxy"},
         {"name": "dirb", "cmd": "dirb", "pkg": "dirb"},
     ]},
     "5": {"category": "Contraseñas", "tools": [

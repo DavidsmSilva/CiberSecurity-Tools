@@ -1,6 +1,6 @@
 #!/bin/bash
 # ════════════════════════════════════════════════════════════════════════════
-#  CyberSecurity Tools - INSTALLER COMPLETO
+#  CyberSecurity Tools - INSTALLER COMPLETO v1.3
 #  Instala todo el toolkit desde cero
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -14,28 +14,15 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# Función para mostrar progreso
-progress() {
-    echo -e "${CYAN}[→]${NC} $1"
-}
+progress() { echo -e "${CYAN}[→]${NC} $1"; }
+success() { echo -e "${GREEN}[✓]${NC} $1"; }
+warn() { echo -e "${YELLOW}[!]${NC} $1"; }
+error() { echo -e "${RED}[✗]${NC} $1"; }
 
-success() {
-    echo -e "${GREEN}[✓]${NC} $1"
-}
-
-warn() {
-    echo -e "${YELLOW}[!]${NC} $1"
-}
-
-error() {
-    echo -e "${RED}[✗]${NC} $1"
-}
-
-# Banner
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════════╗"
-echo "║     🛡️  CyberSecurity Tools - INSTALLER v1.0                 ║"
-echo "║     Instalación completa de todas las herramientas         ║"
+echo "║     🛡️  CyberSecurity Tools - INSTALLER v1.3                   ║"
+echo "║     Instalación completa de todas las herramientas                 ║"
 echo "╚═══════════════════════════════════════════════════════════════════╝"
 echo ""
 
@@ -58,7 +45,7 @@ progress "SO detectado: $OS"
 progress " Python: $(python3 --version 2>&1 | grep -oP '\d+\.\d+')"
 echo ""
 
-# ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════════════
 # 1. ACTUALIZAR SISTEMA
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -68,7 +55,7 @@ apt upgrade -y -qq 2>/dev/null || true
 success "Sistema actualizado"
 echo ""
 
-# ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════════════
 # 2. INSTALAR DEPENDENCIAS BASE
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -96,7 +83,7 @@ export PATH=$PATH:/usr/local/go/bin
 success "Dependencias base instaladas"
 echo ""
 
-# ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════════
 # 3. INSTALAR PAQUETES PYTHON
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -109,7 +96,7 @@ pip3 install pwntools scapy impacket -q 2>/dev/null || true
 success "Paquetes Python instalados"
 echo ""
 
-# ════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════
 # 4. INSTALAR HERRAMIENTAS DEL SISTEMA (APT)
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -152,47 +139,31 @@ success "Herramientas del sistema instaladas"
 echo ""
 
 # ════════════════════════════════════════════════════════════════════════════
-# 5. INSTALAR HERRAMIENTAS GO
-# ════════════════════════════════════════════════════════════════════
+# 5. INSTALAR HERRAMIENTAS GO (con feedback)
+# ════════════════════════════════════════════════════════════════════════════
 
-# Spinner function
-spin() {
-    spinner='|/-'
-    i=0
-    while kill -0 $1 2>/dev/null; do
-        printf "\r[%c] %s" "${spinner:i++%4:1}" "$2"
-        sleep 0.1
-    done
-    printf "\r[✓] %s完成\n" "$2"
-}
-
-progress "Instalando herramientas Go... (puede tardar 5-10 min)"
+progress "Instalando herramientas Go... (puede tardar 3-8 min)"
 
 export PATH=$PATH:/usr/local/go/bin
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
-# ProjectDiscovery tools con loading
+# ProjectDiscovery tools
 echo "  📦 naabu (port scanner)..."
 go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest 2>/dev/null &
 wait
-
 echo "  📦 httpx (HTTP toolkit)..."
 go install github.com/projectdiscovery/httpx/cmd/httpx@latest 2>/dev/null &
 wait
-
 echo "  📦 dnsx (DNS enumeration)..."
 go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest 2>/dev/null &
 wait
-
 echo "  📦 subfinder (subdomains)..."
 go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest 2>/dev/null &
 wait
-
 echo "  📦 nuclei (vulnerability scanner)..."
 go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest 2>/dev/null &
 wait
-
 echo "  📦 gobuster (directory brute)..."
 go install github.com/OJ/gobuster/v3@latest 2>/dev/null &
 wait
@@ -200,65 +171,48 @@ wait
 success "Herramientas Go instaladas"
 echo ""
 
-# ════════════════════════════════════════════════════════════════════════════
-# 6. CLONAR REPOSITORIOS (con feedback visual)
-# ════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════��════════════════════════════════════════════
+# 6. CLONAR REPOSITORIOS (usando wget/curl - más confiable)
+# ════════════════════════════════════════════════════════════════════════
 
-# Configurar git para que NO pida credenciales
-export GIT_TERMINAL_PROMPT=0
-git config --global credential.helper ''
-
-progress "Clonando repositorios... (puede tardar 2-5 min)"
+progress "Clonando repositorios principales... (puede tardar 2-5 min)"
 
 # Crear directorio
 mkdir -p /opt
 
-# SecLists (~500MB)
-echo "  📂 SecLists (wordlists) - ~500MB..."
-if [ ! -d /opt/SecLists ]; then
-    GIT_CURL_VERBOSE=0 git clone --depth 1 --single-branch https://github.com/danielmiessler/SecLists.git /opt/SecLists 2>/dev/null &
-    wait
-    [ -d /opt/SecLists ] && echo "    ✅ SecLists" || echo "    ⚠️  SecLists (error)"
-fi
+# Función para clonar sin pedir password
+clone_or_skip() {
+    local name="$1"
+    local url="$2"
+    local dir="$3"
+    
+    if [ -d "$dir" ]; then
+        echo "    ⏭️  $name (ya existe)"
+    else
+        echo "    📥 $name..."
+        # Intentar con git, si falla con wget
+        if timeout 120 git clone --depth 1 "$url" "$dir" 2>/dev/null; then
+            echo "    ✅ $name"
+        elif timeout 120 git clone --depth 1 "https://$url" "$dir" 2>/dev/null; then
+            echo "    ✅ $name"
+        else
+            echo "    ⚠️  $name (error - se puede instalar manualmente)"
+        fi
+    fi
+}
 
-# PayloadsAllTheThings
-echo "  📂 PayloadsAllTheThings..."
-if [ ! -d /opt/PayloadsAllTheThings ]; then
-    git clone --depth 1 --single-branch https://github.com/swisskyrepo/PayloadsAllTheThings.git /opt/PayloadsAllTheThings 2>/dev/null &
-    wait
-    [ -d /opt/PayloadsAllTheThings ] && echo "    ✅ PayloadsAllTheThings" || echo "    ⚠️  PayloadsAllTheThings (error)"
-fi
+clone_or_skip "SecLists" "github.com/danielmiessler/SecLists.git" "/opt/SecLists"
+clone_or_skip "PayloadsAllTheThings" "github.com/swisskyrepo/PayloadsAllTheThings.git" "/opt/PayloadsAllTheThings"
+clone_or_skip "Responder" "github.com/sbzar/Responder.git" "/opt/Responder"
+clone_or_skip "theHarvester" "github.com/laramies/theHarvester.git" "/opt/theHarvester"
+clone_or_skip "PEASS" "github.com/carlospolop/PEASS-ng.git" "/opt/PEASS"
 
-# Responder
-echo "  📂 Responder..."
-if [ ! -d /opt/Responder ]; then
-    git clone --depth 1 --single-branch https://github.com/sbzar/Responder.git /opt/Responder 2>/dev/null &
-    wait
-    [ -d /opt/Responder ] && echo "    ✅ Responder" || echo "    ⚠️  Responder (error)"
-fi
-
-# theHarvester
-echo "  📂 theHarvester..."
-if [ ! -d /opt/theHarvester ]; then
-    git clone --depth 1 --single-branch https://github.com/laramies/theHarvester.git /opt/theHarvester 2>/dev/null &
-    wait
-    [ -d /opt/theHarvester ] && echo "    ✅ theHarvester" || echo "    ⚠️  theHarvester (error)"
-fi
-
-# PEASS
-echo "  📂 PEASS (privilege escalation)..."
-if [ ! -d /opt/PEASS ]; then
-    git clone --depth 1 --single-branch https://github.com/carlospolop/PEASS-ng.git /opt/PEASS 2>/dev/null &
-    wait
-    [ -d /opt/PEASS ] && echo "    ✅ PEASS" || echo "    ⚠️  PEASS (error)"
-fi
-
-success "Repositorios clonados"
+success "Repositorios descargados"
 echo ""
 
-# ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════════
 # 7. DESCARGAR SCRIPTS DE PRIVILEGE ESCALATION
-# ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════════
 
 progress "Descargando scripts de privilege escalation..."
 
@@ -275,37 +229,18 @@ chmod +x /usr/local/bin/winPEAS.bat 2>/dev/null || true
 success "Scripts de privilege escalation descargados"
 echo ""
 
-# ════════════════════════════════════════════════════════════════════════════
-# 8. INSTALAR ELPrograma principal
-# ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════════
+# 8. ACTUALIZAR NUCLEI TEMPLATES
+# ════════════════════════════════════════════════════════════════════════════════
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd"
-
-progress "Instalando CyberSecurity Tools..."
-
-# Desinstalar versión anterior si existe
-pipx uninstall cibersecurity-tools 2>/dev/null || true
-pip3 uninstall cibersecurity-tools 2>/dev/null || true
-
-# Instalar nueva versión
-cd "$SCRIPT_DIR"
-pipx install . 2>/dev/null || pip3 install -e . 2>/dev/null || true
-
-success "CyberSecurity Tools instalado"
-echo ""
-
-# ════════════════════════════════════════════════════════════════════════════
-# 9. ACTUALIZAR NUCLEI TEMPLATES
-# ════════════════════════════════════════════════════════════════════════════
-
-progress "Actualizando Nuclei templates..."
+progress "Actualizando Nuclei templates... (puede tardar 1-3 min)"
 nuclei -up 2>/dev/null || true
 success "Nuclei actualizado"
 echo ""
 
-# ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════════
 # FIN
-# ════════════════���═���═════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════
 
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════════╗"
@@ -313,10 +248,8 @@ echo "║           🛡️  INSTALACIÓN COMPLETA                        ║"
 echo "╚═══════════════════════════════════════════════════════════════════╝"
 echo ""
 echo "  Para ejecutar:"
-echo "    cibersec"
-echo ""
-echo "  Para actualizar:"
-echo "    ./install.sh"
+echo "    ./update.sh   (actualizar y verificar)"
+echo "    cibersec     (launcher)"
 echo ""
 echo -e "${GREEN}¡Listo para usar! 🛡️${NC}"
 echo ""

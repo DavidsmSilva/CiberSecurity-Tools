@@ -153,23 +153,49 @@ echo ""
 
 # ════════════════════════════════════════════════════════════════════════════
 # 5. INSTALAR HERRAMIENTAS GO
-# ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════
 
-progress "Instalando herramientas Go..."
+# Spinner function
+spin() {
+    spinner='|/-'
+    i=0
+    while kill -0 $1 2>/dev/null; do
+        printf "\r[%c] %s" "${spinner:i++%4:1}" "$2"
+        sleep 0.1
+    done
+    printf "\r[✓] %s完成\n" "$2"
+}
+
+progress "Instalando herramientas Go... (puede tardar 5-10 min)"
 
 export PATH=$PATH:/usr/local/go/bin
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
-# ProjectDiscovery tools
-go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest 2>/dev/null || true
-go install github.com/projectdiscovery/httpx/cmd/httpx@latest 2>/dev/null || true
-go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest 2>/dev/null || true
-go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest 2>/dev/null || true
-go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest 2>/dev/null || true
+# ProjectDiscovery tools con loading
+echo "  📦 naabu (port scanner)..."
+go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest 2>/dev/null &
+wait
 
-# Gobuster
-go install github.com/OJ/gobuster/v3@latest 2>/dev/null || true
+echo "  📦 httpx (HTTP toolkit)..."
+go install github.com/projectdiscovery/httpx/cmd/httpx@latest 2>/dev/null &
+wait
+
+echo "  📦 dnsx (DNS enumeration)..."
+go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest 2>/dev/null &
+wait
+
+echo "  📦 subfinder (subdomains)..."
+go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest 2>/dev/null &
+wait
+
+echo "  📦 nuclei (vulnerability scanner)..."
+go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest 2>/dev/null &
+wait
+
+echo "  📦 gobuster (directory brute)..."
+go install github.com/OJ/gobuster/v3@latest 2>/dev/null &
+wait
 
 success "Herramientas Go instaladas"
 echo ""

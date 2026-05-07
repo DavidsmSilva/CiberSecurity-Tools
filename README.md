@@ -6,7 +6,14 @@ Un solo comando para instalar y ejecutar todas las herramientas que necesitás.
 
 ---
 
-## ⚡ Instalación en un comando
+## ⚡ Quick Update (si ya tenés la app)
+
+```bash
+cd CiberSecurity-Tools
+git pull
+chmod +x install.sh update.sh
+sudo ./update.sh
+```
 
 ```bash
 # Clonar el repositorio
@@ -14,6 +21,9 @@ git clone https://github.com/DavidsmSilva/CiberSecurity-Tools.git
 
 # Entrar al directorio
 cd CiberSecurity-Tools
+
+# Dar permisos de ejecución
+chmod +x install.sh update.sh
 
 # Ejecutar el instalador completo
 sudo ./install.sh
@@ -25,6 +35,17 @@ El instalador:
 - ✅ Instala el launcher
 - ✅ Actualiza Nuclei templates
 - 🚀 **TOTAL: ~5-15 minutos**
+
+---
+
+## 🔄 Quick Update (si ya tenés la app)
+
+```bash
+cd CiberSecurity-Tools
+git pull
+chmod +x install.sh update.sh
+sudo ./update.sh
+```
 
 ---
 

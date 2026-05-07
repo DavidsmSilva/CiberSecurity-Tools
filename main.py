@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-CyberSecurity Tools - Launcher Interactivo
-Ejecuta herramientas directamente en terminal
+CyberSecurity Tools - Launcher v1.6
 """
 import os
 import sys
@@ -21,7 +20,7 @@ except ImportError:
 console = Console()
 
 # ============================================================
-# HERRAMIENTAS
+# HERRAMIENTAS (solo lasInstaladas)
 # ============================================================
 
 TOOLS = {
@@ -38,8 +37,6 @@ TOOLS = {
     ]},
     "2": {"category": "OSINT", "tools": [
         {"name": "sherlock", "cmd": "sherlock"},
-        {"name": "theHarvester", "cmd": "theHarvester"},
-        {"name": "cyberfind", "cmd": "cyberfind"},
     ]},
     "3": {"category": "Vulnerabilidades", "tools": [
         {"name": "nuclei", "cmd": "nuclei"},
@@ -53,7 +50,6 @@ TOOLS = {
         {"name": "searchsploit", "cmd": "searchsploit"},
     ]},
     "5": {"category": "Web Pentesting", "tools": [
-        {"name": "burpsuite", "cmd": "burpsuite"},
         {"name": "zaproxy", "cmd": "zap-x.sh"},
         {"name": "dirb", "cmd": "dirb"},
         {"name": "gobuster", "cmd": "gobuster"},
@@ -75,62 +71,60 @@ TOOLS = {
         {"name": "netcat", "cmd": "nc"},
         {"name": "socat", "cmd": "socat"},
         {"name": "linpeas", "cmd": "/usr/local/bin/linpeas"},
-        {"name": "impacket", "cmd": "impacket-secretsdump"},
     ]},
     "9": {"category": "Active Directory", "tools": [
-        {"name": "bloodhound", "cmd": "bloodhound"},
         {"name": "crackmapexec", "cmd": "crackmapexec"},
         {"name": "enum4linux", "cmd": "enum4linux"},
-        {"name": "evil-winrm", "cmd": "evil-winrm"},
     ]},
-    "10": {"category": "Wordlists & Recursos", "tools": [
-        {"name": "SecLists", "cmd": "ls /opt/SecLists"},
-        {"name": "rockyou", "cmd": "ls /usr/share/wordlists/rocktxt"},
-    ]},
-    "11": {"category": "CTF & Reverse", "tools": [
-        {"name": "pwntools", "cmd": "python3 -c import pwn"},
+    "10": {"category": "CTF & Reverse", "tools": [
         {"name": "ghidra", "cmd": "ghidra"},
         {"name": "radare2", "cmd": "r2"},
         {"name": "binwalk", "cmd": "binwalk"},
+        {"name": "foremost", "cmd": "foremost"},
     ]},
-    "12": {"category": "Utilidades", "tools": [
+    "11": {"category": "Utilidades", "tools": [
         {"name": "tmux", "cmd": "tmux"},
         {"name": "proxychains", "cmd": "proxychains4"},
-        {"name": "tor", "cmd": "tor"},
     ]},
-    "13": {"category": "Wireless Security", "tools": [
+    "12": {"category": "Wireless Security", "tools": [
         {"name": "aircrack-ng", "cmd": "aircrack-ng"},
         {"name": "wifite", "cmd": "wifite"},
         {"name": "reaver", "cmd": "reaver"},
     ]},
-    "14": {"category": "Social Engineering", "tools": [
-        {"name": "setoolkit", "cmd": "setoolkit"},
-    ]},
-    "15": {"category": "C2 & Remote Access", "tools": [
-        {"name": "sliver", "cmd": "sliver"},
-        {"name": "mythic", "cmd": "mythic"},
-        {"name": "pupy", "cmd": "pupy"},
-    ]},
 }
+
+
+def check_installed(cmd):
+    """Verifica si una herramienta está instalada"""
+    # EsPath directo?
+    if cmd.startswith("/"):
+        return Path(cmd).exists()
+    
+    # Buscar en PATH
+    result = subprocess.run(
+        ["which", cmd],
+        capture_output=True,
+        text=True
+    )
+    return result.returncode == 0
 
 
 def show_menu():
     console.print("\n")
     console.print("[bold cyan]╔════════════════════════════════════════════════════════════════╗[/bold cyan]")
-    console.print("[bold cyan]║      🛡️  CyberSecurity Tools - Launcher v1.0                  ║[/bold cyan]")
+    console.print("[bold cyan]║      🛡️  CyberSecurity Tools - Launcher v1.6                    ║[/bold cyan]")
     console.print("[bold cyan]╚════════════════════════════════════════════════════════════════╝[/bold cyan]")
     console.print("")
     
     table = Table(show_header=True, header_style="bold cyan")
     table.add_column("#", style="cyan", width=4)
     table.add_column("Categoría", style="white")
-    table.add_column("Herramientas", style="dim")
+    table.add_column("Tools", style="dim")
     
     for key, val in TOOLS.items():
-        table.add_row(key, val["category"], f"{len(val['tools'])} tools")
+        table.add_row(key, val["category"], f"{len(val['tools'])}")
     
     console.print(table)
-    console.print("")
 
 
 def show_tools(category):
@@ -140,129 +134,37 @@ def show_tools(category):
     table = Table(show_header=True, header_style="bold cyan")
     table.add_column("#", style="cyan", width=4)
     table.add_column("Herramienta", style="white")
-    table.add_column("Descripción", style="dim")
-    
-    descriptions = {
-        "nmap": "Escáner de puertos",
-        "netdiscover": "Descubrir hosts en red local",
-        "masscan": "Escaneo masivo",
-        "naabu": "Port scanner rápido",
-        "httpx": "HTTP toolkit",
-        "dnsx": "DNS enumeration",
-        "subfinder": "Subdomain enum",
-        "whatweb": "Tecnologías web",
-        "nikto": "Web vulnerabilities",
-        "sherlock": "Buscar usuarios",
-        "theHarvester": "Emails y subdomains",
-        "nuclei": "Vulnerability scanner",
-        "msfconsole": "Metasploit",
-        "msfvenom": "Generar payloads",
-        "sqlmap": "SQL Injection",
-        "commix": "Command Injection",
-        "searchsploit": "Buscar exploits",
-        "burpsuite": "Proxy web",
-        "zaproxy": "OWASP ZAP",
-        "dirb": "Directory busting",
-        "gobuster": "Directory brute",
-        "hashcat": "Cracking GPU",
-        "john": "Cracking CPU",
-        "hydra": "Brute force",
-        "cewl": "Generar wordlist",
-        "crunch": "Generar wordlist",
-        "wireshark": "Sniffer",
-        "ettercap": "MitM",
-        "bettercap": "MitM moderno",
-        "responder": "LLMNR poison",
-        "netcat": "Reverse shell",
-        "socat": "Relay",
-        "linpeas": "Linux priv esc",
-        "impacket": "Windows protocols",
-        "bloodhound": "AD attack paths",
-        "crackmapexec": "AD exploitation",
-        "enum4linux": "SMB enum",
-        "evil-winrm": "WinRM shell",
-        "ghidra": "Decompiler",
-        "radare2": "Binary analysis",
-        "binwalk": "Embedded files",
-    }
+    table.add_column("Estado", style="dim")
     
     for idx, tool in enumerate(cat["tools"], 1):
-        desc = descriptions.get(tool["name"], "")
-        table.add_row(str(idx), tool["name"], desc)
+        installed = check_installed(tool["cmd"])
+        status = "[green]✅[/green]" if installed else "[red]❌[/red]"
+        table.add_row(str(idx), tool["name"], status)
     
     console.print(table)
-    console.print("")
 
 
-def run_interactive(category: str, tool_idx: int):
+def run_tool(category, tool_idx):
     cat = TOOLS[category]
     tool = cat["tools"][tool_idx - 1]
     cmd = tool["cmd"]
     
-    console.print(f"\n[green]▸ Ejecutando: {tool['name']}[/green]")
-    console.print(f"[dim]Comando: {cmd} [parametros][/dim]\n")
-    console.print("[yellow]✎ Escribe 'exit' para volver al menú[/yellow]\n")
+    # Verificar si está instalada
+    if not check_installed(cmd):
+        console.print(f"\n[red]✗ {tool['name']} no está instalado[/red]")
+        console.print(f"[yellow]Para instalar: sudo apt install {tool['name']}[/yellow]\n")
+        return
     
-    # Ejecutar interactivamente
-    try:
-        # Ejecutar con shell interactivo
-        process = subprocess.Popen(
-            cmd,
-            shell=True,
-            executable="/bin/bash",
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        
-        # Loop interactivo
-        while True:
-            try:
-                # Leer output directamente al proceso
-                # Usar exec para ejecutar el comando directamente
-                subprocess.run(cmd, shell=True, executable="/bin/bash")
-                break
-            except KeyboardInterrupt:
-                console.print("\n[yellow]Deteniendo...[/yellow]")
-                process.terminate()
-                break
-        
-    except FileNotFoundError:
-        console.print(f"\n[red]✗ Herramienta no encontrada: {tool['name']}[/red]")
-        console.print(f"[dim]¿Está instalada?[/dim]")
-    except Exception as e:
-        console.print(f"[red]✗ Error: {e}[/red]")
-
-
-def run_direct(category: str, tool_idx: int):
-    """Ejecuta la herramienta directamente"""
-    cat = TOOLS[category]
-    tool = cat["tools"][tool_idx - 1]
-    cmd = tool["name"]
-    
+    # Ejecutar directamente
     console.print(f"\n[green]▸ {tool['name']}[/green]")
-    console.print("[yellow]→ Ejecutando directamente...[/yellow]\n")
+    console.print("[dim]Escribe parámetros y presiona Enter[/dim]")
+    console.print("[dim]Escribe 'exit' para salir[/dim]\n")
     
-    # Reemplazar el comando por solo el nombre (sin -h)
-    # y ejecutar directamente
+    # Ejecutar de forma interactiva
     try:
-        # Verificar si existe
-        result = subprocess.run(
-            ["which", tool["name"]],
-            capture_output=True,
-            text=True
-        )
-        
-        if result.returncode != 0:
-            console.print(f"[red]✗ {tool['name']} no está instalado[/red]")
-            return
-        
-        # Ejecutar el comando directamente (sin parámetros)
-        # El usuario agrega lo que necesita
-        os.system(tool["name"])
-        
+        os.system(cmd)
     except KeyboardInterrupt:
-        console.print("\n[yellow]Interrupted[/yellow]")
+        console.print("\n[yellow]Detenido[/yellow]")
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
 
@@ -271,41 +173,30 @@ def main():
     while True:
         show_menu()
         
-        console.print("[bold]Selecciona categoría:[/bold] ", end="")
+        console.print("[bold]Categoría:[/bold] ", end="")
         category = input().strip()
         
         if category.lower() in ["q", "quit", "exit"]:
-            console.print("[cyan]¡Hasta luego! 👋[/cyan]")
+            console.print("[cyan]👋[/cyan]")
             break
         
         if category not in TOOLS:
-            console.print(f"[red]Categoría inválida[/red]")
+            console.print(f"[red]Inválido: {category}[/red]")
             continue
         
-        # Mostrar herramientas
         show_tools(category)
         
-        console.print("[bold]Selecciona herramienta:[/bold] ", end="")
-        tool_idx_input = input().strip()
+        console.print("[bold]Herramienta (#):[/bold] ", end="")
+        sel = input().strip()
         
-        if tool_idx_input.lower() in ["b", "back"]:
+        if sel.lower() in ["b", "back"]:
             continue
-        if tool_idx_input.lower() in ["q", "quit", "exit"]:
-            break
         
         try:
-            tool_idx = int(tool_idx_input)
-            cat = TOOLS[category]
-            
-            if tool_idx < 1 or tool_idx > len(cat["tools"]):
-                console.print(f"[red]Índice inválido[/red]")
-                continue
-            
-            # Ejecutar directamente
-            run_direct(category, tool_idx)
-            
+            idx = int(sel)
+            run_tool(category, idx)
         except ValueError:
-            console.print(f"[red]Número inválido[/red]")
+            console.print("[red]Número inválido[/red]")
 
 
 if __name__ == "__main__":

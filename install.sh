@@ -1,89 +1,316 @@
 #!/bin/bash
-# CyberSecurity Tools - INSTALLER v1.7
-# Instala todas las herramientas
+# ========================================================================
+#  CyberSecurity Tools - INSTALLER COMPLETO v2.0
+#  Instala TODAS las herramientas automáticamente
+# ========================================================================
 
 set -e
 
-CYAN='\033[0;36m'
+# Colores
+RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
+# Contadores
+INSTALLED=0
+FAILED=0
+SKIPPED=0
+
+# Función para mostrar estado
+status() {
+    echo -e "${CYAN}[→]${NC} $1"
+}
+
+ok() {
+    echo -e "${GREEN}[✓]${NC} $1"
+    INSTALLED=$((INSTALLED + 1))
+}
+
+fail() {
+    echo -e "${RED}[✗]${NC} $1"
+    FAILED=$((FAILED + 1))
+}
+
+skip() {
+    echo -e "${YELLOW}[−]${NC} $1"
+    SKIPPED=$((SKIPPED + 1))
+}
+
+warn() {
+    echo -e "${YELLOW}[!]${NC} $1"
+}
+
+# Banner
 echo ""
-echo "========================================"
-echo "  CyberSecurity Tools - INSTALLER v1.7"
-echo "========================================"
+echo "╔═══════════════════════════════════════════════════════════════════╗"
+echo "║     🛡️  CyberSecurity Tools - INSTALLER v2.0          ║"
+echo "║     Instalación completa y automática                      ║"
+echo "╚═══════════════════════════════════════════════════════════════════╝"
 echo ""
 
-# Sistema
-echo "${CYAN}[1/5] Sistema...${NC}"
-apt update -qq && apt upgrade -y -qq 2>/dev/null || true
-echo "${GREEN}[OK]${NC}"
+# Verificar root
+if [[ $EUID -ne 0 ]]; then
+    warn "Ejecutar como root: sudo ./install.sh"
+    exit 1
+fi
 
-# Dependencias
-echo "${CYAN}[2/5] Dependencias...${NC}"
-apt install -y git curl wget build-essential python3 python3-pip ruby ruby-dev net-tools -qq 2>/dev/null || true
-echo "${GREEN}[OK]${NC}"
+# Detectar SO
+if [[ -f /etc/kali-release ]]; then
+    OS="kali"
+elif [[ -f /etc/parrot-release ]]; then
+    OS="parrot"
+else
+    OS="debian"
+fi
 
-# Python
-echo "${CYAN}[3/5] Python...${NC}"
+status "Sistema: $OS"
+echo ""
+
+# ========================================================================
+# 1. ACTUALIZAR SISTEMA
+# ========================================================================
+status "[1/6] Actualizando sistema..."
+apt update -qq 2>/dev/null || true
+apt upgrade -y -qq 2>/dev/null || true
+ok "Sistema actualizado"
+echo ""
+
+# ========================================================================
+# 2. INSTALAR DEPENDENCIAS
+# ========================================================================
+status "[2/6] Instalando dependencias..."
+
+DEPS="git curl wget build-essential python3 python3-pip python3-venv ruby ruby-dev net-tools"
+
+for dep in $DEPS; do
+    if dpkg -l | grep -q "^ii  $dep "; then
+        skip "$dep (ya instalado)"
+    else
+        if apt install -y -qq $dep 2>/dev/null; then
+            ok "$dep"
+        else
+            fail "$dep"
+        fi
+    fi
+done
+echo ""
+
+# Python packages
+status "Paquetes Python..."
 pip3 install --upgrade pip -q 2>/dev/null || true
-pip3 install typer rich pwntools scapy impacket -q 2>/dev/null || true
-echo "${GREEN}[OK]${NC}"
+for pkg in typer rich pwntools scapy impacket; do
+    if pip3 show $pkg >/dev/null 2>&1; then
+        skip "python-$pkg"
+    else
+        if pip3 install -q $pkg 2>/dev/null; then
+            ok "python-$pkg"
+        else
+            fail "python-$pkg"
+        fi
+    fi
+done
+echo ""
 
-# APT - TODAS las herramientas
-echo "${CYAN}[4/5] Herramientas (~50)...${NC}"
-apt install -y \
-    nmap netdiscover masscan \
-    nikto whatweb \
-    metasploit-framework exploitdb sqlmap commix \
-    zaproxy dirb \
-    john hashcat hydra cewl crunch cupp \
-    wireshark ettercap-graphical bettercap responder \
-    netcat-traditional socat \
-    enum4linux ldap-utils \
-    binwalk foremost radare2 ghidra gdb \
-    tmux screen proxychains4 macchanger \
-    wordlists \
-    -qq 2>/dev/null || true
-echo "${GREEN}[OK]${NC}"
+# ========================================================================
+# 3. INSTALAR HERRAMIENTAS APT
+# ========================================================================
+status "[3/6] Herramientas del sistema..."
 
-# Go
-echo "${CYAN}[5/5] Go tools...${NC}"
+# Lista de paquetes - solo los que existen en Kali
+APT_PACKAGES=(
+    "nmap"
+    "netdiscover"
+    "masscan"
+    "nikto"
+    "whatweb"
+    "metasploit-framework"
+    "exploitdb"
+    "sqlmap"
+    "commix"
+    "zaproxy"
+    "dirb"
+    "gobuster"
+    "john"
+    "hashcat"
+    "hydra"
+    "cewl"
+    "crunch"
+    "wireshark"
+    "ettercap-graphical"
+    "bettercap"
+    "responder"
+    "netcat"
+    "netcat-traditional"
+    "socat"
+    "enum4linux"
+    "ldap-utils"
+    "binwalk"
+    "foremost"
+    "radare2"
+    "ghidra"
+    "gdb"
+    "tmux"
+    "screen"
+    "proxychains"
+    "wordlists"
+)
+
+# Instalar en batches para no saturar
+BATCH=""
+for pkg in "${APT_PACKAGES[@]}"; do
+    BATCH="$BATCH $pkg"
+done
+
+# Instalar todo junto
+if apt install -y -qq $BATCH 2>/dev/null; then
+    ok "Herramientas APT instaladas"
+else
+    # Intentar una por una
+    for pkg in "${APT_PACKAGES[@]}"; do
+        if apt install -y -qq $pkg 2>/dev/null; then
+            ok "$pkg"
+        else
+            fail "$pkg"
+        fi
+    done
+fi
+echo ""
+
+# ========================================================================
+# 4. INSTALAR HERRAMIENTAS GO
+# ========================================================================
+status "[4/6] Herramientas Go..."
+
+# Configurar Go
 export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
-go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest 2>/dev/null || true
-go install github.com/projectdiscovery/httpx/cmd/httpx@latest 2>/dev/null || true
-go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest 2>/dev/null || true
-go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest 2>/dev/null || true
-go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest 2>/dev/null || true
-go install github.com/OJ/gobuster/v3@latest 2>/dev/null || true
-echo "${GREEN}[OK]${NC}"
 
-# Scripts
+# Verificar Go
+if ! command -v go &>/dev/null; then
+    status "Instalando Go..."
+    wget -q https://go.dev/dl/go1.21.5.linux-amd64.tar.gz -O /tmp/go.tar.gz
+    tar -C /usr/local -xzf /tmp/go.tar.gz 2>/dev/null || true
+    rm -f /tmp/go.tar.gz
+    export PATH=$PATH:/usr/local/go/bin
+fi
+
+# Herramientas Go
+GO_TOOLS=(
+    "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest"
+    "github.com/projectdiscovery/httpx/cmd/httpx@latest"
+    "github.com/projectdiscovery/dnsx/cmd/dnsx@latest"
+    "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest"
+    "github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest"
+    "github.com/OJ/gobuster/v3@latest"
+)
+
+for tool in "${GO_TOOLS[@]}"; do
+    TOOL_NAME=$(echo $tool | cut -d'/' -f5)
+    if command -v $TOOL_NAME &>/dev/null; then
+        skip "$TOOL_NAME (ya instalado)"
+    else
+        if go install $tool 2>/dev/null; then
+            ok "$TOOL_NAME"
+        else
+            fail "$TOOL_NAME"
+        fi
+    fi
+done
+echo ""
+
+# ========================================================================
+# 5. HERRAMIENTAS ADICIONALES
+# ========================================================================
+status "[5/6] Scripts y herramientas adicionales..."
+
+# Scripts de privilege escalation
 mkdir -p /usr/local/bin
-curl -sL "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -o /usr/local/bin/linpeas 2>/dev/null && chmod +x /usr/local/bin/linpeas
-curl -sL "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEAS.bat" -o /usr/local/bin/winPEAS.bat 2>/dev/null && chmod +x /usr/local/bin/winPEAS.bat
 
-# Nuclei
-nuclei -up 2>/dev/null || true
+if curl -sL "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -o /usr/local/bin/linpeas 2>/dev/null; then
+    chmod +x /usr/local/bin/linpeas
+    ok "linpeas"
+else
+    fail "linpeas"
+fi
 
-# Fin
-echo ""
-echo "========================================"
-echo "  ✅ INSTALACION COMPLETA"
-echo "========================================"
-echo ""
-echo "Ejecutar: cibersec"
+if curl -sL "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEAS.bat" -o /usr/local/bin/winPEAS.bat 2>/dev/null; then
+    chmod +x /usr/local/bin/winPEAS.bat
+    ok "winPEAS"
+else
+    fail "winPEAS"
+fi
+
+# Nuclei templates
+if command -v nuclei &>/dev/null; then
+    if nuclei -up 2>/dev/null; then
+        ok "nuclei-templates"
+    else
+        fail "nuclei-templates"
+    fi
+else
+    skip "nuclei-templates (nuclei no instalado)"
+fi
 echo ""
 
-# Verificar
-echo "Verificación:"
-which nmap && echo "  ✅ nmap"
-which masscan && echo "  ✅ masscan"
-which sqlmap && echo "  ✅ sqlmap"
-which john && echo "  ✅ john"
-which hashcat && echo "  ✅ hashcat"
-which nuclei && echo "  ✅ nuclei"
-which gobuster && echo "  ✅ gobuster"
+# ========================================================================
+# 6. VERIFICAR INSTALACIÓN
+# ========================================================================
+status "[6/6] Verificando instalación..."
+
+VERIFY_TOOLS=(
+    "nmap"
+    "masscan"
+    "netdiscover"
+    "sqlmap"
+    "nikto"
+    "john"
+    "hashcat"
+    "hydra"
+    "nuclei"
+    "gobuster"
+    "msfconsole"
+)
+
+for tool in "${VERIFY_TOOLS[@]}"; do
+    if command -v $tool &>/dev/null; then
+        ok "$tool"
+    else
+        fail "$tool"
+    fi
+done
+echo ""
+
+# ========================================================================
+# RESUMEN
+# ========================================================================
+echo "╔═══════════════════════════════════════════════════════════════════╗"
+echo "║                    📊 RESUMEN FINAL                          ║"
+echo "╚═══════════════════════════════════════════════════════════════════╝"
+echo ""
+echo -e "  ${GREEN}Instaladas:${NC} $INSTALLED"
+echo -e "  ${RED}Fallidas:${NC} $FAILED"
+echo -e "  ${YELLOW}Omitidas:${NC} $SKIPPED"
+echo ""
+
+if [ $FAILED -eq 0 ]; then
+    echo -e "${GREEN}✅ INSTALACIÓN COMPLETA - TODO OK${NC}"
+else
+    echo -e "${YELLOW}⚠️  Instalación completada con errores${NC}"
+    echo ""
+    echo "Para reinstallar una herramienta específica:"
+    echo "  sudo apt install <nombre-paquete>"
+fi
+
+echo ""
+echo "╔═══════════════════════════════════════════════════════════════════╗"
+echo "║  🛡️  CyberSecurity Tools - INSTALADO                    ║"
+echo "╚═══════════════════════════════════════════════════════════════════╝"
+echo ""
+echo "Ejecutar el launcher:"
+echo "  cibersec"
+echo ""
+echo "O directamente una herramienta:"
+echo "  nmap -sV 192.168.1.1"
 echo ""

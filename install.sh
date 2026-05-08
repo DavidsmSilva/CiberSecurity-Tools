@@ -1,6 +1,6 @@
 #!/bin/bash
 # ========================================================================
-#  CyberSecurity Tools - INSTALLER v2.2
+#  CyberSecurity Tools - INSTALLER v1.0
 #  Instalación automática con modos --reinstall, --update
 # ========================================================================
 
@@ -30,16 +30,16 @@ FORCE=0
 # ============================================================
 
 log_info() { echo -e "${CYAN}[INFO]${NC} $1"; }
-log_ok() { echo -e "${GREEN}[OK]${NC} $1" INSTALLED+=("$1"); }
-log_fail() { echo -e "${RED}[FAIL]${NC} $1" FAILED+=("$1"); }
-log_skip() { echo -e "${YELLOW}[SKIP]${NC} $1" SKIPPED+=("$1"); }
+log_ok() { echo -e "${GREEN}[OK]${NC} $1"; INSTALLED+=("$1"); }
+log_fail() { echo -e "${RED}[FAIL]${NC} $1"; FAILED+=("$1"); }
+log_skip() { echo -e "${YELLOW}[SKIP]${NC} $1"; SKIPPED+=("$1"); }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_verbose() { [[ $VERBOSE -eq 1 ]] && echo -e "${BLUE}[VERBOSE]${NC} $1"; }
 
 banner() {
     echo ""
     echo -e "${BOLD}╔═══════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}║          🛡️  CyberSecurity Tools - INSTALLER v2.2          ║${NC}"
+    echo -e "${BOLD}║          🛡️  CyberSecurity Tools - INSTALLER v1.0          ║${NC}"
     echo -e "${BOLD}║               Instalación automática                     ║${NC}"
     echo -e "${BOLD}╚═══════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
@@ -419,6 +419,39 @@ main() {
     detect_os
     check_internet
     
+    # Manejar --update
+    if [[ $UPDATE -eq 1 ]]; then
+        log_info "Modo Update - solo actualizando herramientas existentes..."
+        update_system
+        install_tools_apt
+        install_tools_go
+        install_scripts
+        show_summary
+        return 0
+    fi
+    
+    # Manejar --reinstall especifica
+    if [[ $REINSTALL -eq 1 && -n "$TARGET_PKG" ]]; then
+        log_info "Reinstalando: $TARGET_PKG"
+        banner
+        check_root
+        detect_os
+        check_internet
+        
+        # Instalar herramienta especifica
+        if [[ "$TARGET_PKG" == "nmap" || "$TARGET_PKG" == "masscan" || "$TARGET_PKG" == "netdiscover" || "$TARGET_PKG" == "nuclei" || "$TARGET_PKG" == "sqlmap" || "$TARGET_PKG" == "hydra" || "$TARGET_PKG" == "john" || "$TARGET_PKG" == "hashcat" ]]; then
+            install_apt "$TARGET_PKG"
+        elif [[ "$TARGET_PKG" == "go" ]]; then
+            FORCE=1 install_tools_go
+        else
+            log_warn "Paquete desconocido: $TARGET_PKG"
+            log_info "Paquetes soportados: nmap, masscan, netdiscover, nuclei, sqlmap, hydra, john, hashcat, go"
+        fi
+        show_summary
+        return 0
+    fi
+    
+    # Instalacion completa
     update_system
     install_deps
     install_python_pkgs

@@ -1,6 +1,6 @@
 # 🛡️ CyberSecurity Tools
 
-> **Instalador AUTOMÁTICO + Launcher v2.2** para Kali Linux.
+> **Instalador AUTOMÁTICO + Launcher v1.0** para Kali Linux.
 
 Instala automáticamente herramientas de pentesting y las ejecuta desde un menú interactivo o CLI.
 
@@ -115,6 +115,15 @@ cibersec
 ---
 
 ## 📝 Changelog
+
+### v1.0 (2026-05)
+- ✅ Bug fix: sintaxis Bash en install.sh (falta `;` antes de arrays)
+- ✅ Bug fix: encoding Windows para emojis
+- ✅ Agregado `--reinstall`: reinstallar herramienta específica
+- ✅ Agregado `--update`: solo actualizar herramientas existentes
+- ✅ Removidas herramientas duplicadas (ettercap, bettercap, responder)
+- ✅ Modo `--check` funcional en Windows
+- ✅ pyproject.toml actualizado a v1.0.0
 
 ### v2.2 (2026-05)
 - ✅ Bug fix: `exploitdb` sin espacio

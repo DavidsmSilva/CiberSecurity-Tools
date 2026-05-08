@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 """
-CyberSecurity Tools - Launcher v2.1
-CLI arguments, modo check, mejor manejo de errores
+CyberSecurity Tools - Launcher v1.0
+Bug fixes: sintaxis Bash, encoding Windows, duplicados, opciones --reinstall/--update
 """
+import io
 import os
 import sys
 import subprocess
 import shutil
 import argparse
 from pathlib import Path
+
+# Fix encoding para Windows
+if os.name == 'nt':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 try:
     import typer
@@ -22,7 +28,7 @@ except ImportError:
     from rich.table import Table
     from rich import print
 
-console = Console()
+console = Console(force_terminal=True)
 
 # ============================================================
 # HERRAMIENTAS
@@ -70,9 +76,6 @@ TOOLS = {
         {"name": "responder", "cmd": "responder", "pkg": "responder"},
     ]},
     "7": {"category": "MitM & ARP Spoofing", "tools": [
-        {"name": "ettercap", "cmd": "ettercap", "pkg": "ettercap-graphical"},
-        {"name": "bettercap", "cmd": "bettercap", "pkg": "bettercap"},
-        {"name": "responder", "cmd": "responder", "pkg": "responder"},
         {"name": "arpspoof", "cmd": "arpspoof", "pkg": "dsniff"},
     ]},
     "8": {"category": "Post-Explotación", "tools": [
@@ -239,7 +242,7 @@ def interactive_mode():
     """Modo interactivo"""
     while True:
         console.print("\n[bold cyan]╔════════════════════════════════════════════════════════════════╗[/bold cyan]")
-        console.print("[bold cyan]║      🛡️  CyberSecurity Tools - Launcher v2.1                   ║[/bold cyan]")
+        console.print("[bold cyan]║      🛡️  CyberSecurity Tools - Launcher v1.0                   ║[/bold cyan]")
         console.print("[bold cyan]╚════════════════════════════════════════════════════════════════╝[/bold cyan]")
         console.print("")
         
@@ -300,7 +303,7 @@ def main():
     
     # Version
     if args.version:
-        console.print("[cyan]CyberSecurity Tools v2.1[/cyan]")
+        console.print("[cyan]CyberSecurity Tools v1.0[/cyan]")
         return 0
     
     # Check
